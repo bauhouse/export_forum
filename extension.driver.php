@@ -3,12 +3,12 @@
 	Class extension_export_ensemble extends Extension{
 
 		public function about(){
-			return array('name' => 'Export Ensemble',
+			return array('name' => 'Export Forum Ensemble',
 						 'version' => '1.11',
-						 'release-date' => '2010-02-12',
-						 'author' => array('name' => 'Alistair Kearney',
-										   'website' => 'http://pointybeard.com',
-										   'email' => 'alistair@pointybeard.com')
+						 'release-date' => '2010-04-02',
+						 'author' => array('name' => 'Stephen Bau',
+										   'website' => 'http://bauhouse.ca',
+										   'email' => 'bauhouse@gmail.com')
 				 		);
 		}
 		
@@ -26,7 +26,7 @@
 		public function install(){
 			
 			if(!class_exists('ZipArchive')){
-				Administration::instance()->Page->pageAlert(__('Export Ensemble cannot be installed, since the "<a href="http://php.net/manual/en/book.zip.php">ZipArchive</a>" class is not available. Ensure that PHP was compiled with the <code>--enable-zip</code> flag.'), AdministrationPage::PAGE_ALERT_ERROR);
+				Administration::instance()->Page->pageAlert(__('Export Forum Ensemble cannot be installed, since the "<a href="http://php.net/manual/en/book.zip.php">ZipArchive</a>" class is not available. Ensure that PHP was compiled with the <code>--enable-zip</code> flag.'), AdministrationPage::PAGE_ALERT_ERROR);
 				return false;
 			}
 			
@@ -197,7 +197,7 @@
 			
 			$group = new XMLElement('fieldset');
 			$group->setAttribute('class', 'settings');
-			$group->appendChild(new XMLElement('legend', __('Export Ensemble')));			
+			$group->appendChild(new XMLElement('legend', __('Export Forum Ensemble')));			
 			
 
 			$div = new XMLElement('div', NULL, array('id' => 'file-actions', 'class' => 'label'));			
@@ -209,7 +209,7 @@
 				);
 			}
 			else{
-				$span->appendChild(new XMLElement('button', __('Create'), array('name' => 'action[export]', 'type' => 'submit')));	
+				$span->appendChild(new XMLElement('button', __('Export Forum Ensemble'), array('name' => 'action[export]', 'type' => 'submit')));	
 			}
 			
 			$div->appendChild($span);
