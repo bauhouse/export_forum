@@ -1,9 +1,9 @@
 <?php
 
-	Class extension_export_ensemble extends Extension{
+	Class extension_export_forum extends Extension{
 
 		public function about(){
-			return array('name' => 'Export Forum Ensemble',
+			return array('name' => 'Export Forum Install File',
 						 'version' => '1.11',
 						 'release-date' => '2010-04-02',
 						 'author' => array('name' => 'Stephen Bau',
@@ -26,7 +26,7 @@
 		public function install(){
 
 			if(!class_exists('ZipArchive')){
-				Administration::instance()->Page->pageAlert(__('Export Forum Ensemble cannot be installed, since the "<a href="http://php.net/manual/en/book.zip.php">ZipArchive</a>" class is not available. Ensure that PHP was compiled with the <code>--enable-zip</code> flag.'), AdministrationPage::PAGE_ALERT_ERROR);
+				Administration::instance()->Page->pageAlert(__('Export Forum Install File cannot be installed, since the "<a href="http://php.net/manual/en/book.zip.php">ZipArchive</a>" class is not available. Ensure that PHP was compiled with the <code>--enable-zip</code> flag.'), AdministrationPage::PAGE_ALERT_ERROR);
 				return false;
 			}
 
@@ -148,30 +148,11 @@
 			);
 
 			$archive = new ZipArchive;
-			$res = $archive->open(TMP . '/ensemble.tmp.zip', ZipArchive::CREATE);
+			$res = $archive->open(TMP . '/install.tmp.zip', ZipArchive::CREATE);
 
 			if ($res === TRUE) {
 
-				$this->__addFolderToArchive($archive, EXTENSIONS, DOCROOT);
-				$this->__addFolderToArchive($archive, SYMPHONY, DOCROOT);
-				$this->__addFolderToArchive($archive, WORKSPACE, DOCROOT);
-
-				$archive->addFromString('install.php', $install_template);
-				$archive->addFromString('install.sql', $sql_schema);
 				$archive->addFromString('workspace/install.sql', $sql_data);
-
-				$archive->addFile(DOCROOT . '/index.php', 'index.php');
-
-				$readme_files = glob(DOCROOT . '/README.*');
-				if(is_array($readme_files) && !empty($readme_files)){
-					foreach($readme_files as $filename){
-						$archive->addFile($filename, basename($filename));
-					}
-				}
-
-				if(is_file(DOCROOT . '/README')) $archive->addFile(DOCROOT . '/README', 'README');
-				if(is_file(DOCROOT . '/LICENCE')) $archive->addFile(DOCROOT . '/LICENCE', 'LICENCE');
-				if(is_file(DOCROOT . '/update.php')) $archive->addFile(DOCROOT . '/update.php', 'update.php');
 
 			}
 
@@ -180,19 +161,19 @@
 			header('Content-type: application/octet-stream');
 			header('Expires: ' . gmdate('D, d M Y H:i:s') . ' GMT');
 
-		    header(
+			header(
 				sprintf(
-					'Content-disposition: attachment; filename=%s-ensemble.zip', 
+					'Content-disposition: attachment; filename=%s-install.zip', 
 					Lang::createFilename(
 						Administration::instance()->Configuration->get('sitename', 'general')
 					)
 				)
 			);
 
-		    header('Pragma: no-cache');
+			header('Pragma: no-cache');
 
-			readfile(TMP . '/ensemble.tmp.zip');
-			unlink(TMP . '/ensemble.tmp.zip');
+			readfile(TMP . '/install.tmp.zip');
+			unlink(TMP . '/install.tmp.zip');
 			exit();
 
 		}
@@ -209,7 +190,7 @@
 
 			$group = new XMLElement('fieldset');
 			$group->setAttribute('class', 'settings');
-			$group->appendChild(new XMLElement('legend', __('Export Forum Ensemble')));
+			$group->appendChild(new XMLElement('legend', __('Export Forum Install File')));
 
 
 			$div = new XMLElement('div', NULL, array('id' => 'file-actions', 'class' => 'label'));
@@ -221,12 +202,12 @@
 				);
 			}
 			else{
-				$span->appendChild(new XMLElement('button', __('Export Forum Ensemble'), array('name' => 'action[export]', 'type' => 'submit')));
+				$span->appendChild(new XMLElement('button', __('Export Forum Install File'), array('name' => 'action[export]', 'type' => 'submit')));
 			}
 
 			$div->appendChild($span);
 
-			$div->appendChild(new XMLElement('p', __('Packages entire site as a <code>.zip</code> archive for download.'), array('class' => 'help')));
+			$div->appendChild(new XMLElement('p', __('Packages <code>workspace/install.sql</code> as a <code>.zip</code> archive for download.'), array('class' => 'help')));
 
 			$group->appendChild($div);
 			$context['wrapper']->appendChild($group);
