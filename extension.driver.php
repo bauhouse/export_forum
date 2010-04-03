@@ -1,6 +1,6 @@
 <?php
 
-	Class extension_export_ensemble extends Extension{
+	Class extension_export_forum extends Extension{
 
 		public function about(){
 			return array('name' => 'Export Forum Ensemble',
