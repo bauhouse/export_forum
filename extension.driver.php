@@ -110,73 +110,16 @@
 
 			$sql_data = str_replace('`' . Administration::instance()->Configuration->get('tbl_prefix', 'database'), '`tbl_', $sql_data);
 
-			$config_string = NULL;
-			$config = Administration::instance()->Configuration->get();
+			$path = '/workspace';
 
-			unset($config['symphony']['build']);
-			unset($config['symphony']['cookie_prefix']);
-			unset($config['general']['useragent']);
-			unset($config['file']['write_mode']);
-			unset($config['directory']['write_mode']);
-			unset($config['database']['host']);
-			unset($config['database']['port']);
-			unset($config['database']['user']);
-			unset($config['database']['password']);
-			unset($config['database']['db']);
-			unset($config['database']['tbl_prefix']);
-			unset($config['region']['timezone']);
+			$filename = 'install.sql';
 
-			foreach($config as $group => $set){
-				foreach($set as $key => $val){
-					$config_string .= "		\$conf['{$group}']['{$key}'] = '{$val}';" . self::CRLF;
-				}
+			if(FALSE !== file_put_contents(DOCROOT . $path . '/' . $filename, $sql_data)) {
+				Administration::instance()->Page->pageAlert(__('SQL data successfully dumped into <code>%s/%s</code>.',array($path,$filename)), Alert::SUCCESS);
 			}
-
-			$install_template = str_replace(
-
-									array(
-										'<!-- BUILD -->',
-										'<!-- VERSION -->',
-										'<!-- CONFIGURATION -->'
-									),
-
-									array(
-										Administration::instance()->Configuration->get('build', 'symphony'),
-										Administration::instance()->Configuration->get('version', 'symphony'),
-										trim($config_string),
-									),
-
-									file_get_contents(dirname(__FILE__) . '/lib/installer.tpl')
-			);
-
-			$archive = new ZipArchive;
-			$res = $archive->open(TMP . '/install.tmp.zip', ZipArchive::CREATE);
-
-			if ($res === TRUE) {
-
-				$archive->addFromString('workspace/install.sql', $sql_data);
-
+			else {
+				Administration::instance()->Page->pageAlert(__('An error occurred while trying to write <code>%s/%s</code>.',array($path,$filename)), Alert::ERROR);
 			}
-
-			$archive->close();
-
-			header('Content-type: application/octet-stream');
-			header('Expires: ' . gmdate('D, d M Y H:i:s') . ' GMT');
-
-			header(
-				sprintf(
-					'Content-disposition: attachment; filename=%s-install.zip', 
-					Lang::createFilename(
-						Administration::instance()->Configuration->get('sitename', 'general')
-					)
-				)
-			);
-
-			header('Pragma: no-cache');
-
-			readfile(TMP . '/install.tmp.zip');
-			unlink(TMP . '/install.tmp.zip');
-			exit();
 
 		}
 
@@ -192,24 +135,17 @@
 
 			$group = new XMLElement('fieldset');
 			$group->setAttribute('class', 'settings');
-			$group->appendChild(new XMLElement('legend', __('Export Forum Install File')));
+			$group->appendChild(new XMLElement('legend', __('Save Forum Install File')));
 
 
 			$div = new XMLElement('div', NULL, array('id' => 'file-actions', 'class' => 'label'));
 			$span = new XMLElement('span');
 
-			if(!class_exists('ZipArchive')){
-				$span->appendChild(
-					new XMLElement('p', '<strong>' . __('Warning: It appears you do not have the "ZipArchive" class available. Ensure that PHP was compiled with <code>--enable-zip</code>') . '<strong>')
-				);
-			}
-			else{
-				$span->appendChild(new XMLElement('button', __('Export Forum Install File'), array('name' => 'action[export]', 'type' => 'submit')));
-			}
+			$span->appendChild(new XMLElement('button', __('Save Forum Install File'), array('name' => 'action[export]', 'type' => 'submit')));
 
 			$div->appendChild($span);
 
-			$div->appendChild(new XMLElement('p', __('Packages <code>workspace/install.sql</code> as a <code>.zip</code> archive for download.'), array('class' => 'help')));
+			$div->appendChild(new XMLElement('p', __('Saves the <code>install.sql</code> file to the <code>workspace</code> directory.'), array('class' => 'help')));
 
 			$group->appendChild($div);
 			$context['wrapper']->appendChild($group);
